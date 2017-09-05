@@ -1,0 +1,11 @@
+api_endpoint: https://gitlab.mydomain.com/api
+api_version: v4
+private_token: sometoken
+groups:
+  - name: mygroup
+    settings:
+      variables:
+        - key: npm_token
+          value: npm-token
+        - key: nexus_token
+          value: nexus-token
