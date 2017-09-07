@@ -46,6 +46,7 @@ require 'gitlab/devops'
 
 Gitlab::Devops::Config.apply(YAML.load('path-to-gitlab-config.yml'))
 ```
+An example project can be found [here](https://github.com/sanjusoftware/gitlab-devops-example)
 
 This is it!
 
