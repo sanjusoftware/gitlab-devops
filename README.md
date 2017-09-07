@@ -9,6 +9,10 @@ Gitlab-devops gem is a wrapper around the [gitlab](https://github.com/NARKOZ/git
 3. Integrate the gitlab setup in CI tool
 4. Reduce the pain of going to each project to change settings via UI
 
+## Gitlab Config file
+The gem requires you to provide a config.yml (the name could be anything) which defines the settings that you want to be applied to your 
+projects / groups. An example fo the config can be found [here](https://github.com/sanjusoftware/gitlab-devops/blob/master/spec/fixtures/config.yml) 
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -40,7 +44,7 @@ If you have an existing project (CI/CD setup) in which you want to use the this 
 ```ruby
 require 'gitlab/devops'
 
-Gitlab::Devops::Config.apply(YAML.load(IO.read(File.join(File.dirname(__FILE__), 'config.yml'))))
+Gitlab::Devops::Config.apply(YAML.load('path-to-gitlab-config.yml'))
 ```
 
 This is it!
