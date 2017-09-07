@@ -27,11 +27,23 @@ Or install it yourself as:
 
 ## Usage
 
+### CLI
 Once the `gitlab-devops` gem is installed, it can be used directly from command line. e.g
 
 ```bash
 gitlab-devops config.yml
 ```
+
+### Existing project
+If you have an existing project (CI/CD setup) in which you want to use the this gem, then you can add following lines:
+
+```ruby
+require 'gitlab/devops'
+
+Gitlab::Devops::Config.apply(YAML.load(IO.read(File.join(File.dirname(__FILE__), 'config.yml'))))
+```
+
+This is it!
 
 ## Development
 
