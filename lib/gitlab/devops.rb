@@ -1,4 +1,4 @@
-require 'gitlab/devops/version'
+require_relative '../../lib/gitlab/devops/version'
 require 'yaml'
 require 'gitlab'
 

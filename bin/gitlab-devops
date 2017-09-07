@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/gitlab/devops/cli'
+
+Gitlab::Devops::Cli.run(ARGV)
