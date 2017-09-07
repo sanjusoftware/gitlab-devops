@@ -1,8 +1,13 @@
 # Gitlab::Devops
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/gitlab/devops`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Maintain gitlab settings (groups / projects / build vars etc) as YAML and keep it version controlled. DevOps!!
+Gitlab-devops gem is a wrapper around the [gitlab](https://github.com/NARKOZ/gitlab) gem, which is an awesomely written ruby wrapper on gitlab apis. 
+`gitlab-devops` uses `YAML` to define gitlab settings and apply those settings to your gitlab on one single command. This makes life easier ofcourse, as now you can do following:
+ 
+1. Have all gitlab project settings in version control
+2. Review gitlab project/group settings at one place
+3. Integrate the gitlab setup in CI tool
+4. Reduce the pain of going to each project to change settings via UI
 
 ## Installation
 
@@ -22,7 +27,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Once the `gitlab-devops` gem is installed, it can be used directly from command line. e.g
+
+```bash
+gitlab-devops config.yml
+```
 
 ## Development
 
