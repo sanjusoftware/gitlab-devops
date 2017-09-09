@@ -1,0 +1,13 @@
+api_endpoint: https://gitlab.mydomain.com/api
+api_version: v4
+private_token: token
+groups:
+  - name: group_name
+    projects:
+      - name: wrong_proj_name
+        settings:
+          variables:
+            - key: npm_token
+              value: project_specific_npm_token
+            - key: npm_token1
+              value: project_specific_npm_token1
