@@ -1,29 +1,18 @@
-api_endpoint: https://git.ecommchannels.com/api
+api_endpoint: https://gitlab.mydomain.com/api
 api_version: v4
-private_token: iUc8Ba_HQBA3a6XYxcs3
+private_token: token
 groups:
-  - name: jenius2
+  - name: group_name
     settings:
       variables:
-        - key: npm_token
-          value: npm-token
-        - key: nexus_token
-          value: nexus-token
+        - key: key1
+          value: value1
     projects:
       - name: global-project-settings
         settings:
           variables:
-            - key: npm_token
-              value: project_specific_npm_token
-            - key: npm_token1
-              value: project_specific_npm_token1
-projects:
-  - name: global-project-settings
-    settings:
-      variables:
-        - key: openshift_host
-          value: myopenshift host
-
+            - key: key1
+              value: value2
 
 # GitLab API access config
 #gitlab:

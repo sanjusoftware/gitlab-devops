@@ -34,7 +34,7 @@ module Gitlab
             end
           end
         end
-
+        true
       end
 
       def self.apply_group_settings(group, group_config)
@@ -45,7 +45,7 @@ module Gitlab
         project_specific_configs.each do |project_config|
           proj_name = project_config['name']
           project = projects.find {|p| p.name == proj_name}
-          raise Error::Error, "Project with name #{proj_name} not found under group under #{group_config['name']}" unless project
+          raise Error::Error, "Project with name #{proj_name} not found under group #{group_config['name']}" unless project
         end
 
         projects.each do |project|
@@ -88,7 +88,7 @@ module Gitlab
             when 'variables'
               update_project_variables(project, value) if project.name == 'global-project-settings'
             else
-              raise Error::Error, "Unsupported setting '#{setting}'. See supported in examples/gitlab.config.yml file"
+              raise Error::Error, "Unsupported setting '#{setting}'. See supported in spec/fixtures/config.yml"
           end
         end
       end

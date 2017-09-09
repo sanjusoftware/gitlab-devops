@@ -12,6 +12,17 @@ describe Gitlab::Devops::Config do
     end
 
     it 'should apply group settings' do
+      grps = [Gitlab::ObjectifiedHash.new({id: 1, name: 'group_name'})]
+      allow(Gitlab).to receive(:group_search).with('group_name').and_return(grps)
+
+      projects = [Gitlab::ObjectifiedHash.new({id: 1, name: 'global-project-settings'})]
+      allow(Gitlab).to receive(:group_projects).with(1).and_return(projects)
+
+      allow(Gitlab).to receive(:project_search).with('valid_name').and_return(projects)
+
+      allow(Gitlab).to receive(:variables).with(1).and_return([])
+      allow(Gitlab).to receive(:create_variable).with(1, 'key1', 'value1').and_return(nil)
+
       expect(with_config('../fixtures/config.yml')).to be_truthy
     end
 
@@ -19,7 +30,7 @@ describe Gitlab::Devops::Config do
       projects = [Gitlab::ObjectifiedHash.new({name: 'valid_project'})]
       allow(Gitlab).to receive(:project_search).with('valid_name').and_return(projects)
       expect {with_config('../fixtures/config_not_supported_settings.yml')}.to raise_error Gitlab::Error::Error,
-                                                                                           "Unsupported setting 'unsupported'. See supported in examples/gitlab.config.yml file"
+                                                                                           "Unsupported setting 'unsupported'. See supported in spec/fixtures/config.yml"
     end
 
     it 'should throw error if group name not provided' do
@@ -38,7 +49,7 @@ describe Gitlab::Devops::Config do
       allow(Gitlab).to receive(:group_search).with('group_name').and_return(grps)
       allow(Gitlab).to receive(:group_projects).with(1).and_return([])
       expect {with_config('../fixtures/config_wrong_proj_name1.yml')}.to raise_error Gitlab::Error::Error,
-                                                                                     'Project with name wrong_proj_name not found under group under group_name'
+                                                                                     'Project with name wrong_proj_name not found under group group_name'
     end
 
     it 'should throw_error if a project name not provided' do
