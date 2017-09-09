@@ -6,23 +6,20 @@ module Gitlab
   module Devops
     class Config
       def self.apply(options)
+        configure_gitlab(options)
+        apply_group_settings(options)
+        apply_project_settings(options)
+        true
+      end
+
+      def self.configure_gitlab(options)
         Gitlab.configure do |config|
           config.endpoint = "#{options['api_endpoint']}/#{options['api_version']}"
           config.private_token = options['private_token']
         end
+      end
 
-        group_configs = options['groups']
-        if group_configs
-          group_configs.each do |group_config|
-            raise Error::Parsing, 'Group name must be provided' unless group_config['name']
-            groups = Gitlab.group_search(group_config['name'])
-            raise Error::Error, "group not found for #{group_config['name']}" if groups.empty?
-            groups.each do |group|
-              apply_group_settings group, group_config
-            end
-          end
-        end
-
+      def self.apply_project_settings(options)
         project_configs = options['projects']
         if project_configs
           project_configs.each do |project_config|
@@ -30,14 +27,27 @@ module Gitlab
             projects = Gitlab.project_search(project_config['name'])
             raise Error::Error, "project not found for #{project_config['name']}" if projects.empty?
             projects.each do |project|
-              apply_project_settings project, project_config['settings']
+              update_project project, project_config['settings']
             end
           end
         end
-        true
       end
 
-      def self.apply_group_settings(group, group_config)
+      def self.apply_group_settings(options)
+        group_configs = options['groups']
+        if group_configs
+          group_configs.each do |group_config|
+            raise Error::Parsing, 'Group name must be provided' unless group_config['name']
+            groups = Gitlab.group_search(group_config['name'])
+            raise Error::Error, "group not found for #{group_config['name']}" if groups.empty?
+            groups.each do |group|
+              update_group group, group_config
+            end
+          end
+        end
+      end
+
+      def self.update_group(group, group_config)
         projects = Gitlab.group_projects(group.id)
 
         project_specific_configs = group_config['projects']
@@ -52,7 +62,7 @@ module Gitlab
           proj_config = project_specific_configs.find {|proj| proj['name'] == project.name}
           project_config = proj_config && proj_config['settings'] ? merge_settings(proj_config['settings'], group_config['settings']) : group_config['settings']
 
-          apply_project_settings(project, project_config)
+          update_project(project, project_config)
         end
 
       end
@@ -81,7 +91,7 @@ module Gitlab
         grp_vars.inject {|hash| hash['value'] = new_value if hash['key'] == key_to_replace}
       end
 
-      def self.apply_project_settings(project, project_config)
+      def self.update_project(project, project_config)
         p "applying settings to project #{project.name}"
         project_config.each do |setting, value|
           case setting
