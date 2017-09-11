@@ -7,9 +7,20 @@ groups:
       variables:
         - key: key1
           value: value1
+          protected: true
+        - key: key2
+          value: value2
+      deploy_keys:
+        key_can_push:
+          key: ssh-rsa AAAAB
+          title: key_can_push
+          can_push: true
+        key_cant_push:
+          key: ssh-rsa NzaC1y
+          title: key_cant_push
     projects:
       - name: global-project-settings
         settings:
           variables:
             - key: key1
-              value: value2
+              value: value3

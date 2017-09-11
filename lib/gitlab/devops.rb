@@ -79,7 +79,7 @@ module Gitlab
 
         proj_vars.each do |hash|
           if grp_var_names.include?(hash['key'])
-            update_grp_var(grp_vars, hash['key'], hash['value'])
+            update_grp_var(grp_vars, hash['key'], hash['value'], correct_boolean(hash['protected']))
           else
             grp_vars << hash
           end
@@ -87,8 +87,14 @@ module Gitlab
         grp_vars
       end
 
-      def self.update_grp_var(grp_vars, key_to_replace, new_value)
-        grp_vars.inject {|hash| hash['value'] = new_value if hash['key'] == key_to_replace}
+      def self.update_grp_var(grp_vars, key_to_replace, new_value, protected)
+        grp_vars.inject do |hash|
+          if hash['key'] == key_to_replace
+            hash['value'] = new_value
+            hash['protected'] = protected
+          end
+        end
+        # grp_vars.inject {|hash| hash['value'] = new_value if hash['key'] == key_to_replace}
       end
 
       def self.update_project(project, project_config)
@@ -97,6 +103,8 @@ module Gitlab
           case setting
             when 'variables'
               update_project_variables(project, value) if project.name == 'global-project-settings'
+            when 'deploy_keys'
+              update_project_deploy_keys(project, value) if project.name == 'global-project-settings'
             else
               raise Error::Error, "Unsupported setting '#{setting}'. See supported in spec/fixtures/config.yml"
           end
@@ -105,16 +113,52 @@ module Gitlab
 
       def self.update_project_variables(project, variables)
         existing_variables = Gitlab.variables(project.id)
-        existing_variables.each do |variable|
-          Gitlab.remove_variable(project.id, variable.key)
+        if existing_variables
+          existing_variables.each do |variable|
+            Gitlab.remove_variable(project.id, variable.key)
+          end
         end
 
         variables.each do |variable|
           p "updating var #{variable} for project #{project.name}"
-          Gitlab.create_variable(project.id, variable['key'], variable['value'])
+          Gitlab.create_variable(project.id, variable['key'], variable['value'], correct_boolean(variable['protected']))
+        end
+      end
+
+      def self.correct_boolean(variable)
+        variable.is_a?(TrueClass) || variable.is_a?(FalseClass) ? variable : false
+      end
+
+      def self.update_project_deploy_keys(project, deploy_keys)
+        existing_deploy_keys = Gitlab.deploy_keys(project.id)
+        if existing_deploy_keys
+          existing_deploy_keys.each do |deploy_key|
+            Gitlab.delete_deploy_key(project.id, deploy_key.id)
+          end
+        end
+
+        deploy_keys.each do |deploy_key_name, value|
+          p "updating deploy key #{deploy_key_name} with value #{value} for project #{project.name}"
+          key = Gitlab.create_deploy_key(project.id, value['title'], value['key'], correct_boolean(value['can_push']))
+          p "created deploy key #{key.inspect}"
         end
       end
 
     end
+  end
+end
+
+class Gitlab::Client
+  module Projects
+
+    def create_deploy_key(project, title, key, can_push)
+      post("/projects/#{url_encode project}/deploy_keys", body: {title: title, key: key, can_push: can_push})
+    end
+
+    def create_variable(project, key, value, protected)
+      p "protected is #{protected}"
+      post("/projects/#{url_encode project}/variables", body: {key: key, value: value, protected: protected})
+    end
+
   end
 end

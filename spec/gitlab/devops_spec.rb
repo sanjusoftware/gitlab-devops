@@ -11,6 +11,10 @@ describe Gitlab::Devops::Config do
       expect(Gitlab::Devops::VERSION).not_to be_nil
     end
 
+    it 'should run' do
+      # with_config('../../gitlab.example.config.yml')
+    end
+
     it 'should apply group settings' do
       grps = [Gitlab::ObjectifiedHash.new({id: 1, name: 'group_name'})]
       allow(Gitlab).to receive(:group_search).with('group_name').and_return(grps)
@@ -21,7 +25,15 @@ describe Gitlab::Devops::Config do
       allow(Gitlab).to receive(:project_search).with('valid_name').and_return(projects)
 
       allow(Gitlab).to receive(:variables).with(1).and_return([])
-      allow(Gitlab).to receive(:create_variable).with(1, 'key1', 'value1').and_return(nil)
+      allow(Gitlab).to receive(:create_variable).once.with(1, 'key1', 'value1', true).and_return(nil)
+      allow(Gitlab).to receive(:create_variable).once.with(1, 'key2', 'value2', false).and_return(nil)
+      allow(Gitlab).to receive(:create_variable).once.with(1, 'key1', 'value3', false).and_return(nil)
+
+      deploy_keys = [Gitlab::ObjectifiedHash.new({id: 1})]
+      allow(Gitlab).to receive(:deploy_keys).once.with(1).and_return(deploy_keys)
+      allow(Gitlab).to receive(:delete_deploy_key).once.with(1, 1).and_return(deploy_keys)
+      allow(Gitlab).to receive(:create_deploy_key).once.with(1, "key_can_push", 'ssh-rsa AAAAB', true).and_return(nil)
+      allow(Gitlab).to receive(:create_deploy_key).once.with(1, "key_cant_push", 'ssh-rsa NzaC1y', false).and_return(nil)
 
       expect(with_config('../fixtures/config.yml')).to be_truthy
     end
